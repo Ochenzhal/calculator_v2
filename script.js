@@ -11,11 +11,14 @@ class Calculator {
     this.operation = undefined;
   }
 
-  delete() {}
+  delete() {
+    this.currOperand = this.currOperand.toString().slice(0, -1);
+  }
 
   appendNumber(number) {
     if (number === '.' && this.currOperand.includes('.')) return;
     if (this.currOperand.length >= 16) return;
+
     this.currOperand = this.currOperand + number;
   }
 
@@ -24,16 +27,48 @@ class Calculator {
     if (this.prevOperand !== '') {
       this.compute();
     }
+
     this.operation = operation;
     this.prevOperand = this.currOperand;
     this.currOperand = '';
   }
 
-  compute() {}
+  compute() {
+    let computed;
+    const prev = parseFloat(this.prevOperand);
+    const curr = parseFloat(this.currOperand);
+
+    if (isNaN(prev) || isNaN(curr)) return;
+
+    switch (this.operation) {
+      case '÷':
+        computed = prev / curr;
+        break;
+      case 'x':
+        computed = prev * curr;
+        break;
+      case '+':
+        computed = prev + curr;
+        break;
+      case '-':
+        computed = prev - curr;
+        break;
+      default:
+        return;
+    }
+
+    this.currOperand = computed;
+    this.operation = undefined;
+    this.prevOperand = '';
+  }
 
   updateOutput() {
     this.currOutput.innerText = this.currOperand;
-    this.prevOutput.innerText = this.prevOperand;
+    if (this.operation != null) {
+      this.prevOutput.innerText = `${this.prevOperand} ${this.operation}`;
+    } else {
+      this.prevOutput.innerText = '';
+    }
   }
 }
 
@@ -59,4 +94,19 @@ operationBtns.forEach((btn) => {
     calculator.chooseOperation(btn.innerText);
     calculator.updateOutput();
   });
+});
+
+equalsBtn.addEventListener('click', () => {
+  calculator.compute();
+  calculator.updateOutput();
+});
+
+clearBtn.addEventListener('click', () => {
+  calculator.clear();
+  calculator.updateOutput();
+});
+
+deleteBtn.addEventListener('click', () => {
+  calculator.delete();
+  calculator.updateOutput();
 });
